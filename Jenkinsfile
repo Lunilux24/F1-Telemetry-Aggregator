@@ -15,7 +15,7 @@ pipeline {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/Lunilux24/F1-Telemetry-Aggregator.git',
-                    credentialsId: '21bdc7ca-43b0-4bdc-920c-4a9f24fe0b4e'
+                    credentialsId: 'gitPAT'
             }
         }
 
