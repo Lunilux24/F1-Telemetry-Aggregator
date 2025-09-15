@@ -19,15 +19,15 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install and Run') {
             steps {
-                sh 'pip install -r requirements.txt'
-            }
-        }
-
-        stage('Run Ingester with FastF1') {
-            steps {
-                sh 'python ingest/fastf1_ingest.py --bucket $BUCKET --region $AWS_REGION --include-fastf1'
+                sh '''
+                  python3 -m venv venv
+                  . venv/bin/activate
+                  pip install --upgrade pip
+                  pip install -r requirements.txt
+                  python ingest/fastf1_ingest.py --bucket $BUCKET --region $AWS_REGION --include-fastf1
+                '''
             }
         }
 
