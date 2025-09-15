@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        // This pulls the S3 bucket name from Jenkins credentials (Secret text)
-        BUCKET = credentials('b31790df-ecc3-49f8-babd-c04beea8bdaf') // Jenkins credentials
+        BUCKET = credentials('S3Bucket')
         AWS_REGION = 'us-west-2'
     }
 
@@ -28,7 +27,7 @@ pipeline {
 
         stage('Run Ingester with FastF1') {
             steps {
-                sh 'python injest/fastf1_ingest.py --bucket $BUCKET --region $AWS_REGION --include-fastf1'
+                sh 'python ingest/fastf1_ingest.py --bucket $BUCKET --region $AWS_REGION --include-fastf1'
             }
         }
 
