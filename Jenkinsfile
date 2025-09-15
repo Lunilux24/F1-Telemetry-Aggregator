@@ -38,12 +38,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        always {
-            node {
-                archiveArtifacts artifacts: '**/jenkins_logs.txt', onlyIfSuccessful: false
-            }
-        }
-    }
 }
