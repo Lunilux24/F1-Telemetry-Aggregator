@@ -26,7 +26,7 @@ pipeline {
 
         stage('Run Ingester with FastF1') {
             steps {
-                sh 'python Historical\\ Ingester.py --bucket $BUCKET --region $AWS_REGION --include-fastf1'
+                sh 'python injest/fastf1_ingest.py --bucket $BUCKET --region $AWS_REGION --include-fastf1'
             }
         }
 
