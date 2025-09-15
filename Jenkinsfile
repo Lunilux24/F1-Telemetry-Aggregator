@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.9-slim-buster'
+        }
+    }
 
     environment {
         BUCKET = credentials('S3Bucket')
