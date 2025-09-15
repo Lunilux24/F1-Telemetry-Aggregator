@@ -41,7 +41,9 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: '**/jenkins_logs.txt', onlyIfSuccessful: false
+            node {
+                archiveArtifacts artifacts: '**/jenkins_logs.txt', onlyIfSuccessful: false
+            }
         }
     }
 }
