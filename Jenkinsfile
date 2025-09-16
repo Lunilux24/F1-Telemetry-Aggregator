@@ -28,6 +28,7 @@ pipeline {
                   . venv/bin/activate
                   pip install --upgrade pip
                   pip install -r requirements.txt
+                  mkdir -p /tmp/f1_cache
                   python ingest/fastf1_ingest.py --bucket $BUCKET --region $AWS_REGION --include-fastf1
                 '''
             }
