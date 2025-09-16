@@ -5,6 +5,7 @@ import requests
 import argparse
 import logging
 import boto3
+import pandas as pd
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 from dotenv import load_dotenv
@@ -50,10 +51,18 @@ def fetch_jolpica(session, url):
 def fetch_fastf1():
     logging.info("Fetching FastF1 session data (latest race)")
     fastf1.Cache.enable_cache('/tmp/f1_cache')
-    # Example: last completed race of current season
-    session = fastf1.get_session(datetime.now().year, 'Last', 'R')
+    events = fastf1.get_event_schedule(2025)
+
+    last_completed = events[events["EventDate"] < pd.Timestamp.now()].iloc[-1]
+    # Most recent COMPLETED race of the season
+    session = fastf1.get_session(last_completed["EventDate"].year,
+                             last_completed["EventName"], 
+                             "R")
+    # Most recent race of the season
+    # session = fastf1.get_session(datetime.now().year, 'Last', 'R')
     session.load()
-    # Serialize some telemetry data (laps + weather) to JSON
+
+    # TELEMETRY DATA (Can Modify)
     data = {
         'laps': session.laps.to_json(orient='records'),
         'weather': session.weather_data.to_json(orient='records')
