@@ -4,6 +4,7 @@ import time
 import requests
 import argparse
 import logging
+import json
 import boto3
 import pandas as pd
 from requests.adapters import HTTPAdapter
@@ -64,10 +65,10 @@ def fetch_fastf1():
 
     # TELEMETRY DATA (Can Modify)
     data = {
-        "laps": session.laps.to_json(orient='records'),
-        "weather": session.weather_data.to_json(orient='records')
+        "laps": json.loads(session.laps.to_json(orient="records")),
+        "weather": json.loads(session.weather_data.to_json(orient="records"))
     }
-    return str(data).encode('utf-8')
+    return json.dumps(data).encode('utf-8')
 
 def parse_args():
     p = argparse.ArgumentParser()
