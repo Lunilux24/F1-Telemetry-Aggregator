@@ -64,8 +64,8 @@ def fetch_fastf1():
 
     # TELEMETRY DATA (Can Modify)
     data = {
-        'laps': session.laps.to_json(orient='records'),
-        'weather': session.weather_data.to_json(orient='records')
+        "laps": session.laps.to_json(orient='records'),
+        "weather": session.weather_data.to_json(orient='records')
     }
     return str(data).encode('utf-8')
 
