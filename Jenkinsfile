@@ -4,6 +4,8 @@ pipeline {
     environment {
         BUCKET = credentials('S3Bucket')
         AWS_REGION = 'us-west-2'
+        AWS_ACCESS_KEY_ID = credentials('IAM-AK')
+        AWS_SECRET_ACCESS_KEY = credentials('IAM-SAK')
     }
 
     triggers {
