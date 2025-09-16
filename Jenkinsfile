@@ -13,18 +13,6 @@ pipeline {
     }
 
     stages {
-                stage('Debug Credentials') {
-            steps {
-                sh '''
-                  echo "Bucket: ${BUCKET}"
-                  echo "Access Key Length: ${#AWS_ACCESS_KEY_ID}"
-                  echo "Secret Key Length: ${#AWS_SECRET_ACCESS_KEY}"
-                  echo $AWS_ACCESS_KEY_ID | xxd
-                  echo $AWS_SECRET_ACCESS_KEY | xxd
-                '''
-            }
-        }
-
         stage('Checkout') {
             steps {
                 git branch: 'main',
