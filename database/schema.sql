@@ -47,6 +47,19 @@ CREATE TABLE aggregations (
     UNIQUE(driver_id, race_id)
 );
 
+CREATE TABLE weather (
+    id SERIAL PRIMARY KEY,
+    race_id INT NOT NULL REFERENCES races(id),
+    sample_time_ms INT,
+    air_temp DECIMAL,
+    humidity DECIMAL,
+    pressure DECIMAL,
+    rainfall BOOLEAN,
+    track_temp DECIMAL,
+    wind_direction INT,
+    wind_speed DECIMAL
+);
+
 -- Will add later when I implement live telemetry
 CREATE TABLE telemetry (
     id BIGSERIAL PRIMARY KEY,
