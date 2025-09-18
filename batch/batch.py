@@ -148,8 +148,8 @@ def process_fastf1(key, race_id, driver_map):
                 driver_id,
                 int(lap["LapNumber"]),
                 int(lap["Position"]) if lap.get("Position") is not None else None,
-                int(lap["LapTime"]) if lap.get("LapTime") else None,
-                # (lap.get("PitInTime") or lap.get("PitOutTime")) is not None,
+                int(lap["LapTime"]) if lap.get("LapTime") is not None else None,
+                (lap.get("PitInTime") or lap.get("PitOutTime")) is not None,
             )
         )
 
@@ -161,11 +161,33 @@ def process_fastf1(key, race_id, driver_map):
         execute_values(
             cur,
             """
-            INSERT INTO lap_times (race_id, driver_id, lap_number, position, lap_time_ms)
+            INSERT INTO lap_times (race_id, driver_id, lap_number, position, lap_time_ms, is_pit)
             VALUES %s
             ON CONFLICT (race_id, driver_id, lap_number) DO NOTHING
             """,
             rows,
+        )
+        
+        # Insert/update aggregations for this race
+        cur.execute(
+            """
+            INSERT INTO aggregations (driver_id, race_id, avg_lap_ms, pit_stops, fastest_lap_ms)
+            SELECT 
+                driver_id,
+                race_id,
+                AVG(lap_time_ms) FILTER (WHERE lap_time_ms IS NOT NULL)::INT,
+                COUNT(*) FILTER (WHERE is_pit = TRUE),
+                MIN(lap_time_ms)
+            FROM lap_times
+            WHERE race_id = %s
+            GROUP BY driver_id, race_id
+            ON CONFLICT (driver_id, race_id)
+            DO UPDATE SET 
+                avg_lap_ms = EXCLUDED.avg_lap_ms,
+                pit_stops = EXCLUDED.pit_stops,
+                fastest_lap_ms = EXCLUDED.fastest_lap_ms;
+            """,
+            (race_id,)
         )
         conn.commit()
 
