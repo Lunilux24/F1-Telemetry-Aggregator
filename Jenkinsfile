@@ -51,7 +51,7 @@ pipeline {
 
         stage('Process Batch Job') {
             steps {
-                sh 'python3 worker.py'
+                sh 'python3 batch/batch.py'
             }
         }
     }
