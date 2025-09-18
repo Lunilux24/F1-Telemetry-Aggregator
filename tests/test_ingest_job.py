@@ -1,5 +1,11 @@
+import os
 import unittest
 from unittest.mock import patch, MagicMock
+
+os.environ["F1_S3_BUCKET"] = "test-bucket"
+os.environ["AWS_REGION"] = "us-east-1"
+os.environ["JOLPICA_URL"] = "http://test.api.url"
+
 import ingest.fastf1_ingest as ingest
 
 class TestIngestJob(unittest.TestCase):

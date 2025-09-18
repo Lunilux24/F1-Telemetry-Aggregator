@@ -1,5 +1,13 @@
+import os
 import unittest
 from unittest.mock import patch, MagicMock
+
+os.environ["F1_S3_BUCKET"] = "test-bucket"
+os.environ["DB_HOST"] = "localhost"
+os.environ["DB_NAME"] = "test_db"
+os.environ["DB_USER"] = "test_user"
+os.environ["DB_PASS"] = "test_pass"
+
 import batch.batch as batch
 
 class TestBatchJob(unittest.TestCase):
