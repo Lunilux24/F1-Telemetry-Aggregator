@@ -52,7 +52,7 @@ pipeline {
         stage('Process Batch Job') {
             steps {
                 sh '''
-                  .venv/bin/activate
+                  . venv/bin/activate
                   python3 batch/batch.py
                 '''
             }
