@@ -16,7 +16,7 @@ processing_time = Histogram("f1_processing_seconds", "Time taken to process a fi
 load_dotenv()
 F1_S3_BUCKET = os.environ["F1_S3_BUCKET"]
 DB_HOST = os.environ["DB_HOST"]
-DB_NAME = os.environ["DB_NAME"]
+DB_NAME = os.environ.get("DB_NAME", "")
 DB_USER = os.environ["DB_USER"]
 DB_PASS = os.environ["DB_PASS"]
 DB_PORT = int(os.environ.get("DB_PORT", 5432))
