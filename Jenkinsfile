@@ -2,10 +2,15 @@ pipeline {
     agent any
 
     environment {
-        BUCKET = credentials('S3Bucket')
+        F1_S3_BUCKET = credentials('S3Bucket')
         AWS_REGION = 'us-west-2'
         AWS_ACCESS_KEY_ID = credentials('IAM-AK')
         AWS_SECRET_ACCESS_KEY = credentials('IAM-SAK')
+        DB_HOST = credentials('DB_HOST')
+        DB_NAME = credentials('DB_NAME')
+        DB_USER = credentials('DB_USER')
+        DB_PASS = credentials('DB_PASS')
+        DB_PORT = credentials('DB_PORT')
     }
 
     triggers {
@@ -38,14 +43,14 @@ pipeline {
                 sh '''
                   . venv/bin/activate
                   mkdir -p /tmp/f1_cache
-                  python ingest/fastf1_ingest.py --bucket $BUCKET --region $AWS_REGION --include-fastf1
+                  python ingest/fastf1_ingest.py --bucket $F1_S3_BUCKET --region $AWS_REGION --include-fastf1
                 '''
             }
         }
 
         stage('Upload Logs to S3') {
             steps {
-                sh 'aws s3 cp jenkins_logs.txt s3://$BUCKET/logs/$(date +%F_%H-%M-%S).log --region $AWS_REGION || true'
+                sh 'aws s3 cp jenkins_logs.txt s3://$F1_S3_BUCKET/logs/$(date +%F_%H-%M-%S).log --region $AWS_REGION || true'
             }
         }
 

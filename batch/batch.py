@@ -14,12 +14,12 @@ processing_time = Histogram("f1_processing_seconds", "Time taken to process a fi
 
 # AWS/DB Config
 load_dotenv()
-S3_BUCKET = os.environ["F1_S3_BUCKET"]
+BUCKET = os.environ["S3Bucket"]
 DB_HOST = os.environ["DB_HOST"]
 DB_NAME = os.environ["DB_NAME"]
 DB_USER = os.environ["DB_USER"]
 DB_PASS = os.environ["DB_PASS"]
-DB_PORT = os.environ.get("DB_PORT", 5432)
+DB_PORT = int(os.environ.get("DB_PORT", 5432))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
@@ -32,7 +32,7 @@ def get_db_conn():
 def list_new_objects(source_prefix):
     """List objects in S3 under raw/{date}/{source}/"""
     s3 = boto3.client("s3")
-    resp = s3.list_objects_v2(Bucket=S3_BUCKET, Prefix="raw/")
+    resp = s3.list_objects_v2(Bucket=BUCKET, Prefix="raw/")
     for obj in resp.get("Contents", []):
         if source_prefix in obj["Key"]:
             yield obj["Key"]
