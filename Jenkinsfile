@@ -21,13 +21,22 @@ pipeline {
             }
         }
 
-        stage('Install and Run') {
+        stage('Run Tests') {
             steps {
                 sh '''
                   python3 -m venv venv
                   . venv/bin/activate
                   pip install --upgrade pip
                   pip install -r requirements.txt
+                  python -m unittest discover -s tests
+                '''
+            }
+        }
+
+        stage('Install and Run') {
+            steps {
+                sh '''
+                  . venv/bin/activate
                   mkdir -p /tmp/f1_cache
                   python ingest/fastf1_ingest.py --bucket $BUCKET --region $AWS_REGION --include-fastf1
                 '''
@@ -37,6 +46,12 @@ pipeline {
         stage('Upload Logs to S3') {
             steps {
                 sh 'aws s3 cp jenkins_logs.txt s3://$BUCKET/logs/$(date +%F_%H-%M-%S).log --region $AWS_REGION || true'
+            }
+        }
+
+        stage('Process Batch Job') {
+            steps {
+                sh 'python3 worker.py'
             }
         }
     }
