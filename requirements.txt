@@ -3,5 +3,5 @@ requests>=2.28
 urllib3>=1.26
 python-dotenv>=1.0.0
 fastf1>=2.4.0
-psycopg2>=2.9
+psycopg2-binary==2.9.10
 prometheus_client>=0.17
