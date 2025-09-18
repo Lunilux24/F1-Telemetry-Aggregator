@@ -14,7 +14,7 @@ processing_time = Histogram("f1_processing_seconds", "Time taken to process a fi
 
 # AWS/DB Config
 load_dotenv()
-F1_S3_BUCKET = os.environ["S3Bucket"]
+F1_S3_BUCKET = os.environ["F1_S3_BUCKET"]
 DB_HOST = os.environ["DB_HOST"]
 DB_NAME = os.environ["DB_NAME"]
 DB_USER = os.environ["DB_USER"]

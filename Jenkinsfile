@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        F1_S3_BUCKET = credentials('S3Bucket')
+        F1_S3_BUCKET = credentials('F1_S3_BUCKET')
         AWS_REGION = 'us-west-2'
         AWS_ACCESS_KEY_ID = credentials('IAM-AK')
         AWS_SECRET_ACCESS_KEY = credentials('IAM-SAK')
