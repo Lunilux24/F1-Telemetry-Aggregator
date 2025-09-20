@@ -219,7 +219,7 @@ def process_fastf1(key, race_id, driver_map):
             result_rows = [
                 (
                     race_id,
-                    driver_map.get(res.get("DriverNumber")),
+                    driver_map.get(res.get("Position")),
                     res.get("TeamId"),
                     int(res["Position"]) if res.get("Position") is not None else None,
                     float(res["Points"]) if res.get("Points") is not None else None,
@@ -227,7 +227,7 @@ def process_fastf1(key, race_id, driver_map):
                     int(res["Time"]) if res.get("Time") is not None else None,
                 )
                 for res in results
-                if driver_map.get(res.get("DriverNumber"))
+                if driver_map.get(res.get("Position"))
             ]
 
             execute_values(
