@@ -27,6 +27,18 @@ CREATE TABLE races (
     country TEXT
 );
 
+CREATE TABLE results (
+    id SERIAL PRIMARY KEY,
+    race_id INT NOT NULL REFERENCES races(id),
+    driver_id INT NOT NULL REFERENCES drivers(id),
+    team_id INT REFERENCES teams(id),
+    pit_stops INT,
+    position INT,
+    points FLOAT,
+    status VARCHAR(50), -- Finished, DNF, etc.
+    race_time_ms BIGINT -- total race time
+);
+
 CREATE TABLE lap_times (
     id SERIAL PRIMARY KEY,
     race_id INT NOT NULL REFERENCES races(id),
@@ -42,7 +54,6 @@ CREATE TABLE aggregations (
     driver_id INT NOT NULL REFERENCES drivers(id),
     race_id INT NOT NULL REFERENCES races(id),
     avg_lap_ms INT,
-    pit_stops INT,
     fastest_lap_ms INT,
     UNIQUE(driver_id, race_id)
 );
