@@ -219,22 +219,21 @@ def process_fastf1(key, race_id, driver_map):
             result_rows = [
                 (
                     race_id,
-                    driver_map.get(res["Driver"]),
+                    driver_map.get(res.get("DriverNumber")),
                     res.get("TeamId"),
                     int(res["Position"]) if res.get("Position") is not None else None,
                     float(res["Points"]) if res.get("Points") is not None else None,
                     res.get("Status"),
-                    int(res["RaceTime"]) if res.get("RaceTime") is not None else None,
-                    int(res["NumberOfPitStops"]) if res.get("NumberOfPitStops") is not None else 0,
+                    int(res["Time"]) if res.get("Time") is not None else None,
                 )
                 for res in results
-                if driver_map.get(res["Driver"])
+                if driver_map.get(res.get("DriverNumber"))
             ]
 
             execute_values(
                 cur,
                 """
-                INSERT INTO results (race_id, driver_id, team_id, position, points, status, race_time_ms, pit_stops)
+                INSERT INTO results (race_id, driver_id, team_id, position, points, status, race_time_ms)
                 VALUES %s
                 ON CONFLICT (race_id, driver_id) DO UPDATE SET
                 team_id = EXCLUDED.team_id,
@@ -242,7 +241,6 @@ def process_fastf1(key, race_id, driver_map):
                 points = EXCLUDED.points,
                 status = EXCLUDED.status,
                 race_time_ms = EXCLUDED.race_time_ms,
-                pit_stops = EXCLUDED.pit_stops;
                 """,
                 result_rows,
             )
