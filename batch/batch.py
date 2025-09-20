@@ -7,6 +7,7 @@ import psycopg2
 from psycopg2.extras import execute_values
 from prometheus_client import Counter, Histogram, start_http_server
 from dotenv import load_dotenv
+from requests import get
 
 # Prometheus metrics
 files_processed = Counter("f1_files_processed_total", "Number of raw files processed")
@@ -149,7 +150,6 @@ def process_fastf1(key, race_id, driver_map):
                 int(lap["LapNumber"]),
                 int(lap["Position"]) if lap.get("Position") is not None else None,
                 int(lap["LapTime"]) if lap.get("LapTime") is not None else None,
-                (lap.get("PitInTime") or lap.get("PitOutTime")) is not None,
             )
         )
 
@@ -161,22 +161,20 @@ def process_fastf1(key, race_id, driver_map):
         execute_values(
             cur,
             """
-            INSERT INTO lap_times (race_id, driver_id, lap_number, position, lap_time_ms, is_pit)
+            INSERT INTO lap_times (race_id, driver_id, lap_number, position, lap_time_ms)
             VALUES %s
             ON CONFLICT (race_id, driver_id, lap_number) DO NOTHING
             """,
             rows,
         )
         
-        # Insert/update aggregations for this race
         cur.execute(
             """
-            INSERT INTO aggregations (driver_id, race_id, avg_lap_ms, pit_stops, fastest_lap_ms)
+            INSERT INTO aggregations (driver_id, race_id, avg_lap_ms, fastest_lap_ms)
             SELECT 
                 driver_id,
                 race_id,
                 AVG(lap_time_ms) FILTER (WHERE lap_time_ms IS NOT NULL)::INT,
-                COUNT(*) FILTER (WHERE is_pit = TRUE),
                 MIN(lap_time_ms)
             FROM lap_times
             WHERE race_id = %s
@@ -184,11 +182,71 @@ def process_fastf1(key, race_id, driver_map):
             ON CONFLICT (driver_id, race_id)
             DO UPDATE SET 
                 avg_lap_ms = EXCLUDED.avg_lap_ms,
-                pit_stops = EXCLUDED.pit_stops,
                 fastest_lap_ms = EXCLUDED.fastest_lap_ms;
             """,
             (race_id,)
         )
+
+        weather = data.get("weather", [])
+        if weather:
+            weather_rows = [
+                (
+                    race_id,
+                    int(sample["Time"]),
+                    float(sample["AirTemp"]) if sample.get("AirTemp") is not None else None,
+                    float(sample["Humidity"]) if sample.get("Humidity") is not None else None,
+                    float(sample["Pressure"]) if sample.get("Pressure") is not None else None,
+                    bool(sample["Rainfall"]) if sample.get("Rainfall") is not None else None,
+                    float(sample["TrackTemp"]) if sample.get("TrackTemp") is not None else None,
+                    int(sample["WindDirection"]) if sample.get("WindDirection") is not None else None,
+                    float(sample["WindSpeed"]) if sample.get("WindSpeed") is not None else None,
+                )
+                for sample in weather
+            ]
+
+            execute_values(
+                cur,
+                """
+                INSERT INTO weather (race_id, sample_time_ms, air_temp, humidity, pressure, rainfall, track_temp, wind_direction, wind_speed)
+                VALUES %s
+                ON CONFLICT DO NOTHING
+                """,
+                weather_rows,
+            )
+
+        results = data.get("results", [])
+        if results:
+            result_rows = [
+                (
+                    race_id,
+                    driver_map.get(res["Driver"]),
+                    res.get("TeamId"),
+                    int(res["Position"]) if res.get("Position") is not None else None,
+                    float(res["Points"]) if res.get("Points") is not None else None,
+                    res.get("Status"),
+                    int(res["RaceTime"]) if res.get("RaceTime") is not None else None,
+                    int(res["NumberOfPitStops"]) if res.get("NumberOfPitStops") is not None else 0,
+                )
+                for res in results
+                if driver_map.get(res["Driver"])
+            ]
+
+            execute_values(
+                cur,
+                """
+                INSERT INTO results (race_id, driver_id, team_id, position, points, status, race_time_ms, pit_stops)
+                VALUES %s
+                ON CONFLICT (race_id, driver_id) DO UPDATE SET
+                team_id = EXCLUDED.team_id,
+                position = EXCLUDED.position,
+                points = EXCLUDED.points,
+                status = EXCLUDED.status,
+                race_time_ms = EXCLUDED.race_time_ms,
+                pit_stops = EXCLUDED.pit_stops;
+                """,
+                result_rows,
+            )
+
         conn.commit()
 
     files_processed.inc()
