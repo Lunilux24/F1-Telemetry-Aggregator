@@ -68,7 +68,7 @@ def fetch_fastf1():
     data = {
         "laps": json.loads(session.laps.to_json(orient="records")),
         "weather": json.loads(session.weather_data.to_json(orient="records")),
-        "results": json.loads(SessionResults.to_json(orient="records"))
+        "results": json.loads(session.results.to_json(orient="records"))
     }
     return json.dumps(data).encode('utf-8')
 
