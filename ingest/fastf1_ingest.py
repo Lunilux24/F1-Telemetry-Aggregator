@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+from fastf1.core import SessionResults
 import requests
 import argparse
 import logging
@@ -57,7 +58,7 @@ def fetch_fastf1():
     last_completed = events[events["EventDate"] < pd.Timestamp.now()].iloc[-1]
     # Most recent COMPLETED race of the season
     session = fastf1.get_session(last_completed["EventDate"].year,
-                             last_completed["EventName"], 
+                             last_completed["EventName"],
                              "R")
     # Most recent race of the season
     # session = fastf1.get_session(datetime.now().year, 'Last', 'R')
@@ -67,7 +68,7 @@ def fetch_fastf1():
     data = {
         "laps": json.loads(session.laps.to_json(orient="records")),
         "weather": json.loads(session.weather_data.to_json(orient="records")),
-        "results": json.loads(session.results.to_json(orient="records"))
+        "results": json.loads(SessionResults.to_json(orient="records"))
     }
     return json.dumps(data).encode('utf-8')
 
