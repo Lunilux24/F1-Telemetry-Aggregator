@@ -27,18 +27,6 @@ CREATE TABLE races (
     country TEXT
 );
 
-CREATE TABLE results (
-    id SERIAL PRIMARY KEY,
-    race_id INT NOT NULL REFERENCES races(id),
-    driver_id INT NOT NULL REFERENCES drivers(id),
-    team_id INT REFERENCES teams(id),
-    pit_stops INT,
-    position INT,
-    points FLOAT,
-    status VARCHAR(50), -- Finished, DNF, etc.
-    race_time_ms BIGINT -- total race time
-);
-
 CREATE TABLE lap_times (
     id SERIAL PRIMARY KEY,
     race_id INT NOT NULL REFERENCES races(id),
@@ -71,20 +59,32 @@ CREATE TABLE weather (
     wind_speed DECIMAL
 );
 
--- Will add later when I implement live telemetry
-CREATE TABLE telemetry (
-    id BIGSERIAL PRIMARY KEY,
-    race_id INT REFERENCES races(id),
-    driver_id INT REFERENCES drivers(id),
-    lap_number INT,
-    distance_m DECIMAL,
-    speed_kph DECIMAL,
-    throttle_percent DECIMAL,
-    brake BOOLEAN,
-    gear INT,
-    is_pitting BOOLEAN DEFAULT FALSE,
-    drs BOOLEAN
-);
-
 CREATE INDEX idx_lap_times_race_driver ON lap_times(race_id, driver_id);
 CREATE INDEX idx_aggregations_driver ON aggregations(driver_id);
+
+--
+-- No longer included
+--
+-- CREATE TABLE results (
+--     id SERIAL PRIMARY KEY,
+--     driver_id INT NOT NULL UNIQUE REFERENCES drivers(id),
+--     position INT,
+--     points FLOAT,
+--     status VARCHAR(50), -- Finished, DNF, etc.
+--     race_time_ms BIGINT -- total race time
+-- );
+
+-- Will add later when I implement live telemetry
+-- CREATE TABLE telemetry (
+--     id BIGSERIAL PRIMARY KEY,
+--     race_id INT REFERENCES races(id),
+--     driver_id INT REFERENCES drivers(id),
+--     lap_number INT,
+--     distance_m DECIMAL,
+--     speed_kph DECIMAL,
+--     throttle_percent DECIMAL,
+--     brake BOOLEAN,
+--     gear INT,
+--     is_pitting BOOLEAN DEFAULT FALSE,
+--     drs BOOLEAN
+-- );

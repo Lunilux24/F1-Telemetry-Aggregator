@@ -3,6 +3,7 @@ import os
 import json
 import logging
 import boto3
+from fastf1.core import DriverResult
 import psycopg2
 from psycopg2.extras import execute_values
 from prometheus_client import Counter, Histogram, start_http_server
@@ -214,36 +215,40 @@ def process_fastf1(key, race_id, driver_map):
                 weather_rows,
             )
 
-        results = data.get("results", [])
-        if results:
-            result_rows = [
-                (
-                    race_id,
-                    driver_map.get(res.get("Position")),
-                    res.get("TeamId"),
-                    int(res["Position"]) if res.get("Position") is not None else None,
-                    float(res["Points"]) if res.get("Points") is not None else None,
-                    res.get("Status"),
-                    int(res["Time"]) if res.get("Time") is not None else None,
-                )
-                for res in results
-                if driver_map.get(res.get("Position"))
-            ]
+        # results = data.get("results", [])
+        # if results:
+        #     result_rows = []
+        #     for res in results:
+        #         driver_number = str(res.get("DriverNumber"))
+        #         # driver_id = driver_map.get(driver_number)
 
-            execute_values(
-                cur,
-                """
-                INSERT INTO results (race_id, driver_id, team_id, position, points, status, race_time_ms)
-                VALUES %s
-                ON CONFLICT (race_id, driver_id) DO UPDATE SET
-                team_id = EXCLUDED.team_id,
-                position = EXCLUDED.position,
-                points = EXCLUDED.points,
-                status = EXCLUDED.status,
-                race_time_ms = EXCLUDED.race_time_ms,
-                """,
-                result_rows,
-            )
+        #         if not driver_number:
+        #             logging.warning("No mapping found for DriverNumber=%s", driver_number)
+        #             continue
+
+        #         row = (
+        #             driver_number,
+        #             int(res["Position"]) if res.get("Position") is not None else None,
+        #             float(res["Points"]) if res.get("Points") is not None else None,
+        #             res.get("Status"),
+        #             int(res["Time"]) if res.get("Time") is not None else None, # Leader Delta
+        #         )
+        #         result_rows.append(row)
+
+        #     if result_rows:
+        #         execute_values(
+        #             cur,
+        #             """
+        #             INSERT INTO results (driver_id, position, points, status, race_time_ms)
+        #             VALUES %s
+        #                 ON CONFLICT (driver_id) DO UPDATE SET
+        #                 position = EXCLUDED.position,
+        #                 points = EXCLUDED.points,
+        #                 status = EXCLUDED.status,
+        #                 race_time_ms = EXCLUDED.race_time_ms
+        #             """,
+        #             result_rows,
+        #         )
 
         conn.commit()
 
