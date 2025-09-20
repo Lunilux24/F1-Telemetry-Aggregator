@@ -43,11 +43,13 @@ class TestIngestJob(unittest.TestCase):
         mock_session = MagicMock()
         mock_session.laps.to_json.return_value = '[{"Driver": "HAM", "LapNumber": 1, "Position": 1, "LapTime": 90000}]'
         mock_session.weather_data.to_json.return_value = '[{"temp": 20}]'
+        mock_session.results.to_json.return_value = '[{"Driver": "HAM", "Position": 1}]'
         mock_get_session.return_value = mock_session
         mock_session.load.return_value = None
         result = ingest.fetch_fastf1()
         self.assertIn(b'laps', result)
         self.assertIn(b'weather', result)
+        self.assertIn(b'results', result)
 
     def test_parse_args_defaults(self):
         with patch('sys.argv', ['script']):
