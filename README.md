@@ -11,11 +11,10 @@
 ## Components summary
 
 * **Ingest job** — Cron job with Jenkins that fetches Ergast and scrapes race telemetry from Fast F1 then writes raw JSON to S3
-* **Processing service** — Dockerized worker that normalizes and aggregates raw data and writes to Postgres (and optionally emits snapshots to S3).
-* **API service** — Pulling raw data from Ergast/Jolpin and FastF1 API.
+* **Processing service** — Worker script that normalizes and aggregates raw data and writes to Postgres (and optionally emits snapshots to S3).
 * **Storage** — Postgres RDS for relational queries; S3 for raw/archival data.
 * **CI/CD** — Jenkins builds, runs tests, pushes to S3, then runs batch script before pushing to Postgres RDS.
-* **Infra as Code** — CloudFormation describes RDS, IAM roles, and Prometheus/Grafana hosting.
+* **Infra as Code** — CloudFormation describes RDS and IAM roles.
 * **Monitoring** — Prometheus scrapes /metrics endpoints on services; Grafana shows dashboards; Alertmanager sends alerts.
 
 ## Considerations
@@ -26,7 +25,7 @@
 Using a program like Kubernetes or running multiple containers on Docker could be used to horizontally scale the aggregator. In the event that I needed to scale for more users, I would use this technique in combination with a load balancer.
 
 ### Opportunities for Improvement
-The purpose of this project was to practice setting up CI/CD pipelines, use Docker and practice proper testing and deployment techniques. 
+The purpose of this project was to practice setting up CI/CD pipelines, use Docker and practice proper testing and deployment techniques. The project could be improved by adjusting the data being pulled and better organizing it on Grafana to display better information apart from the tables and charts available at the moment.
 
 ## Other Docs
 
