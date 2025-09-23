@@ -25,7 +25,7 @@
 Using a program like Kubernetes or running multiple containers on Docker could be used to horizontally scale the aggregator. In the event that I needed to scale for more users, I would use this technique in combination with a load balancer.
 
 ### Opportunities for Improvement
-The purpose of this project was to practice setting up CI/CD pipelines, use Docker and practice proper testing and deployment techniques. 
+The purpose of this project was to practice setting up CI/CD pipelines, use Docker and practice proper testing and deployment techniques. The project could be improved by adjusting the data being pulled and better organizing it on Grafana to display better information apart from the tables and charts available at the moment.
 
 ## Other Docs
 
