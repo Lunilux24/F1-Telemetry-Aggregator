@@ -1,8 +1,8 @@
 # F1 Telemetry Aggregator
 
----
-
 **Goal:** build a small backend service that ingests F1 race/telemetry data, processes and stores aggregated metrics, exposes a simple API, and demonstrates shipping + operating practices (CI/CD, infra-as-code, monitoring, SLOs, incident handling). Minimal front-end using Grafana to display data.
+
+![grafana dashboard](/docs/grafana_dashboard.jpg)
 
 ## High-level architecture (ASCII)
 
