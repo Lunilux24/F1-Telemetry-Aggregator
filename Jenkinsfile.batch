@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+
+    environment {
+        F1_S3_BUCKET = credentials('F1_S3_BUCKET')
+        AWS_REGION = 'us-west-2'
+        AWS_ACCESS_KEY_ID = credentials('IAM-AK')
+        AWS_SECRET_ACCESS_KEY = credentials('IAM-SAK')
+        DB_HOST = credentials('DB_HOST')
+        DB_NAME = credentials('DB_NAME')
+        DB_USER = credentials('DB_USER')
+        DB_PASS = credentials('DB_PASS')
+        DB_PORT = credentials('DB_PORT')
+    }
+
+    triggers {
+        cron('0 12 * * *') // Run every day at noon
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/Lunilux24/F1-Telemetry-Aggregator.git',
+                    credentialsId: 'gitPAT'
+            }
+        }
+
+        stage('Setup Environment') {
+            steps {
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                    mkdir -p /tmp/f1_cache
+                '''
+            }
+        }
+
+        stage('Data Ingestion') {
+            steps {
+                sh '''
+                    . venv/bin/activate
+                    python ingest/fastf1_ingest.py --bucket $F1_S3_BUCKET --region $AWS_REGION --include-fastf1
+                '''
+            }
+        }
+
+        stage('Process Batch Job') {
+            steps {
+                sh '''
+                    . venv/bin/activate
+                    python3 batch/batch.py
+                '''
+            }
+        }
+
+        stage('Upload Logs') {
+            steps {
+                sh 'aws s3 cp jenkins_logs.txt s3://$F1_S3_BUCKET/logs/$(date +%F_%H-%M-%S).log --region $AWS_REGION || true'
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}

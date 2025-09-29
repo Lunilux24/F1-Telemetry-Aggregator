@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-west-2'
+        AWS_ACCESS_KEY_ID = credentials('IAM-AK')
+        AWS_SECRET_ACCESS_KEY = credentials('IAM-SAK')
+    }
+
+    triggers {
+        pollSCM('H/15 * * * *') // Poll every 15 minutes for changes
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/Lunilux24/F1-Telemetry-Aggregator.git',
+                    credentialsId: 'gitPAT'
+            }
+        }
+
+        stage('Setup Python Environment') {
+            steps {
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                    . venv/bin/activate
+                    python -m unittest discover -s tests
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            junit '**/test-results/*.xml'
+            cleanWs()
+        }
+    }
+}
